@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt"
 import { SignupSchema, SignupSchemaType } from "@/schemas"
 import { db } from "@/lib/db"
+import { getUserByEmail } from "@/data/user"
 export const SignupAction = async (values: SignupSchemaType) => {
   const validationResuts = SignupSchema.safeParse(values)
   if (!validationResuts.success) {
@@ -13,12 +14,8 @@ export const SignupAction = async (values: SignupSchemaType) => {
   const { email, password, name } = validationResuts.data
 
   // check for email exit
-  const existingUser = await db.user.findUnique({
-    where: {
-      email,
-    },
-  })
-
+  const existingUser = await getUserByEmail(email)
+  console.log(existingUser)
   if (existingUser) {
     return { error: "Email already in use!" }
   }
