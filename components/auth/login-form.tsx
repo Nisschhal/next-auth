@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/form"
 
 import CardWrapper from "./card-wrapper"
-import * as z from "zod"
 import { LoginSchema, LoginSchemaType } from "@/schemas"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
+import { FormError } from "../form-error"
+import { FormSuccess } from "../form-success"
 
 export function LoginForm() {
   // infer form type using loginSchema and automatically check default value props
@@ -73,6 +74,11 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
+
+            {/* Form Error */}
+
+            <FormError message="" />
+            <FormSuccess message="" />
             {/* Submit Button */}
             <Button type="submit" className="w-full">
               Login
