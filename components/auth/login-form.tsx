@@ -16,8 +16,15 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { FormError } from "../form-error"
 import { FormSuccess } from "../form-success"
+import { LoginAction } from "@/actions/login"
+import { useState, useTransition } from "react"
 
 export function LoginForm() {
+  // to perform server actions
+  const [isPending, startTransition] = useTransition()
+  // error and success state
+  const [error, setError] = useState<string | undefined>()
+  const [success, setSuccess] = useState<string | undefined>()
   // infer form type using loginSchema and automatically check default value props
   // resolver validates form fields using given schema
   const form = useForm<LoginSchemaType>({
@@ -30,8 +37,17 @@ export function LoginForm() {
 
   // form submit handler
   // gets the validated values form the form
-  const onSubmi = (values: LoginSchemaType) => {
-    console.log(values)
+  const onSubmit = (values: LoginSchemaType) => {
+    // reset the error || success state
+    setError("")
+    setSuccess("")
+
+    // perform server action and reflect of isPending
+    startTransition(async () => {
+      const { success, error } = await LoginAction(values)
+      if (error) setError(error)
+      if (success) setSuccess(success)
+    })
   }
 
   return (
@@ -43,7 +59,7 @@ export function LoginForm() {
     >
       <Form {...form}>
         {/* // create a html form */}
-        <form onSubmit={form.handleSubmit(() => {})}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4">
             {/* Email Input */}
             <FormField
@@ -54,7 +70,11 @@ export function LoginForm() {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     {/* Spread ...field for controlled input */}
-                    <Input {...field} placeholder="nischal.dev@example.com" />
+                    <Input
+                      {...field}
+                      placeholder="nischal.dev@example.com"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -68,7 +88,12 @@ export function LoginForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" placeholder="********" />
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="********"
+                      disabled={isPending}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -77,10 +102,10 @@ export function LoginForm() {
 
             {/* Form Error */}
 
-            <FormError message="" />
-            <FormSuccess message="" />
+            <FormSuccess message={success} />
+            <FormError message={error} />
             {/* Submit Button */}
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isPending}>
               Login
             </Button>
           </div>
