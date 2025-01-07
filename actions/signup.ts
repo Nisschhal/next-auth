@@ -2,7 +2,7 @@
 import bcrypt from "bcrypt"
 import { SignupSchema, SignupSchemaType } from "@/schemas"
 import { db } from "@/lib/db"
-import { getUserByEmail } from "@/data/user"
+import { getUserByEmail } from "@/data/user.utils"
 export const SignupAction = async (values: SignupSchemaType) => {
   const validationResuts = SignupSchema.safeParse(values)
   if (!validationResuts.success) {
