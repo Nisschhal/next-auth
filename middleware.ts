@@ -1,9 +1,11 @@
-import { auth } from "@/auth"
+import authConfig from "./auth.config"
+import NextAuth from "next-auth"
+
+const { auth } = NextAuth(authConfig)
 
 // invoke this function whenever routes matches to given regex
 export default auth((req) => {
-  console.log(req.cookies)
-  console.log(req.nextUrl.pathname)
+  console.log("auth", req.auth)
 })
 
 // match the following routes to invoke above auth()
