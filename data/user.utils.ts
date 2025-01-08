@@ -7,7 +7,7 @@ export const getUserByEmail = async (email: string) => {
     })
     return user
   } catch (error) {
-    console.log("Error while getting user via email!")
+    console.log("Error while getting user via email!", error)
     return null
   }
 }
