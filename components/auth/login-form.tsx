@@ -45,8 +45,8 @@ export function LoginForm() {
     // perform server action and reflect of isPending
     startTransition(async () => {
       const { success, error } = await LoginAction(values)
-      if (error) setError(error)
-      if (success) setSuccess(success)
+      if (error) setError(error || "")
+      if (success) setSuccess(success || "")
     })
   }
 

@@ -6,6 +6,7 @@ import NextAuth from "next-auth"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
+    // use if you need to handle sign in false if user is not verfied and so on.
     async signIn({ user, profile, account }) {
       return true
     },
