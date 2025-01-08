@@ -35,3 +35,14 @@ export const LoginAction = async (
     throw error
   }
 }
+
+export async function handleGoogleLogin() {
+  await signIn("google", {
+    callbackUrl: "/settings",
+  })
+}
+export async function handleGithubLogin() {
+  await signIn("gihub", {
+    callbackUrl: "/settings",
+  })
+}

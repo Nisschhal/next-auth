@@ -5,9 +5,14 @@ import type { NextAuthConfig } from "next-auth"
 import { LoginSchema } from "./schemas"
 import { db } from "./lib/db"
 import { getUserByEmail } from "./data/user.utils"
-
+import Google from "next-auth/providers/google"
+import Github from "next-auth/providers/github"
 export default {
   providers: [
+    // google
+    Google,
+    GitHub,
+
     // IF somehow user | hacker made it there without proper login form validation then validate once again
     Credentials({
       async authorize(credentials) {
