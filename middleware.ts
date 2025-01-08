@@ -14,8 +14,7 @@ const { auth } = NextAuth(authConfig)
 // invoke this function whenever routes matches to given regex
 export default auth((req) => {
   const { nextUrl } = req
-  console.log("------------------")
-  console.log(req.auth, "Authentication")
+
   const isLoggedIn = !!req.auth
 
   // set differnt routes according to different usecases

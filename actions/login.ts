@@ -4,16 +4,33 @@ import { LoginSchema, LoginSchemaType } from "@/schemas"
 import { signIn } from "@/auth"
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { AuthError } from "next-auth"
+import { getUserByEmail } from "@/data/user.utils"
+import { generateVerificationToken } from "@/lib/token"
 
 export const LoginAction = async (
   values: LoginSchemaType
-): Promise<{ success: string | null; error: string | null }> => {
+): Promise<{ error?: string; success?: string }> => {
   const validationResults = LoginSchema.safeParse(values)
   if (!validationResults.success) {
-    return { success: null, error: "Invalid inputs!" }
+    return { error: "Invalid inputs!" }
   }
 
   const { email, password } = validationResults.data
+
+  // check for user  and email verfied
+
+  const existingUser = await getUserByEmail(email)
+
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return { error: "Invalid Email or Credentials!" }
+  }
+  console.log(existingUser, "user-----")
+  // check for emailverified
+  if (!existingUser.emailVerified) {
+    const generatedToken = await generateVerificationToken(email)
+
+    return { success: "Confirmation Email sent, please verify!" }
+  }
 
   try {
     await signIn("credentials", {
@@ -21,14 +38,14 @@ export const LoginAction = async (
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     })
-    return { success: "Login successful!", error: null } // Explicit success response
+    return { success: "Login successful!" } // Explicit success response
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { success: null, error: "Invalid Credentials!" }
+          return { error: "Invalid Credentials!" }
         default:
-          return { success: null, error: "Something went wrong!" }
+          return { error: "Something went wrong!" }
       }
     }
     // Rethrow non-AuthError exceptions
