@@ -1,10 +1,38 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { db as prisma } from "@/lib/db"
+import { db, db as prisma } from "@/lib/db"
 import authConfig from "./auth.config"
 import { getUserByIdWithoutPassword } from "./data/user.utils"
 import NextAuth from "next-auth"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/erro",
+  }, // events for linked accounts
+  events: {
+    // activate when google | google provider activates
+    async linkAccount({ user }) {
+      const existingUser = await db.user.findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+
+      // if such user exist
+      if (existingUser) {
+        await db.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            emailVerified: new Date(),
+          },
+        })
+      }
+    },
+  },
+
+  // for jwt and session
   callbacks: {
     // use if you need to handle sign in false if user is not verfied and so on.
     async signIn({ user, profile, account }) {
@@ -40,6 +68,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session
     },
   },
+
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   ...authConfig,
