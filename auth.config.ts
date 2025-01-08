@@ -9,7 +9,6 @@ import { getUserByEmail } from "./data/user.utils"
 export default {
   providers: [
     // IF somehow user | hacker made it there without proper login form validation then validate once again
-
     Credentials({
       async authorize(credentials) {
         const validateFields = await LoginSchema.safeParse(credentials)
