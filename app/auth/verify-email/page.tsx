@@ -2,8 +2,8 @@
 
 import VerifyEmailAction from "@/actions/verify-email"
 import CardWrapper from "@/components/auth/card-wrapper"
-import { FormError } from "@/components/form-error"
-import { FormSuccess } from "@/components/form-success"
+import { FormError } from "@/components/auth/forms/form-error"
+import { FormSuccess } from "@/components/auth/forms/form-success"
 import { useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 

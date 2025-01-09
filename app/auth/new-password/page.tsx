@@ -1,4 +1,4 @@
-import NewPasswordForm from "@/components/auth/new-password-form"
+import NewPasswordForm from "@/components/auth/forms/new-password/new-password-form"
 import React from "react"
 
 export default function NewPassword() {

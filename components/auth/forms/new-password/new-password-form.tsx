@@ -1,6 +1,6 @@
 "use client"
 import { ResetAction } from "@/actions/reset"
-import CardWrapper from "@/components/auth/card-wrapper"
+import CardWrapper from "@/components/auth/card-wrapper/card-wrapper"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -86,7 +86,7 @@ export default function NewPasswordForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   {/* Spread ...field for controlled input */}
                   <Input
@@ -106,7 +106,7 @@ export default function NewPasswordForm() {
             name="password1"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
                   {/* Spread ...field for controlled input */}
                   <Input
