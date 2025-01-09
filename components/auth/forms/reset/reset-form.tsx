@@ -1,6 +1,5 @@
 "use client"
 import { ResetAction } from "@/actions/reset"
-import CardWrapper from "@/components/auth/card-wrapper"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,8 +14,9 @@ import { ResetSchema, ResetSchemaType } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import React, { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { FormSuccess } from "../form-success"
 import { FormError } from "../form-error"
+import { FormSuccess } from "../form-success"
+import CardWrapper from "../../card-wrapper/card-wrapper"
 
 export default function ResetForm() {
   const [isPending, startTransition] = useTransition()

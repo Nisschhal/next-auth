@@ -1,10 +1,10 @@
 "use client"
 
 import { FcGoogle } from "react-icons/fc"
-import { Button } from "../ui/button"
 import { FaGithub } from "react-icons/fa"
 import { signIn } from "next-auth/react"
 import { useState, useTransition } from "react"
+import { Button } from "@/components/ui/button"
 
 export function Social() {
   const onClick = (provider: "google" | "github") => {

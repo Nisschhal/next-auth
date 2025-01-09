@@ -10,16 +10,16 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-import CardWrapper from "./card-wrapper"
 import { LoginSchema, LoginSchemaType } from "@/schemas"
-import { Input } from "../ui/input"
-import { Button } from "../ui/button"
-import { FormError } from "../form-error"
-import { FormSuccess } from "../form-success"
 import { LoginAction } from "@/actions/login"
 import { useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
+import CardWrapper from "../../card-wrapper/card-wrapper"
+import { Input } from "@/components/ui/input"
+import { FormSuccess } from "../form-success"
+import { FormError } from "../form-error"
+import { Button } from "@/components/ui/button"
 
 export function LoginForm() {
   // if error of linked account
@@ -77,7 +77,7 @@ export function LoginForm() {
   return (
     <CardWrapper
       headerLabel="Welcome back"
-      backButtonLabel="Don't have an accout?"
+      backButtonLabel="Don't have an account?"
       backButtonHref="/auth/signup"
       showSocial
     >
