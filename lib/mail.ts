@@ -24,6 +24,7 @@ const token = "123456" // Replace with the token for verification
 enum EmailType {
   Verification = "Verification",
   Reset = "Reset",
+  TwoFactor = "TwoFactor",
 }
 
 /**
@@ -84,9 +85,47 @@ const sendEmail = async (
   }
 }
 
+// Verification Email
 export async function sendVerificationEmail(email: string, token: string) {
   const info = await sendEmail(email, token)
 }
+
+// Reset Email
 export async function sendResetEmail(email: string, token: string) {
   const info = await sendEmail(email, token, EmailType.Reset)
+}
+
+// Two factor email
+export const sendTwoFactorEmail = async (email: string, token: string) => {
+  try {
+    // Step 1: Create the transporter
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com", // Gmail SMTP server
+      port: 587, // Port for TLS
+      secure: false, // Use TLS
+      auth: {
+        user: senderEmail, // Your email
+        pass: senderPassword, // Your app password
+      },
+    })
+
+    // Step 2: Email content
+    const mailOptions = {
+      from: `"Next Auth" <${senderEmail}>`, // Sender address
+      to: email, // Recipient address
+      subject: "Next Auth Two Factor Code", // Subject line
+      html: `<p>Your two factor code: ${token}</p>`, // HTML content
+    }
+
+    // Step 3: Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    console.log("Email sent successfully!")
+    console.log(info)
+    console.log("Message ID:", info.messageId)
+    return info
+  } catch (error) {
+    console.error("Error sending email:", error)
+    return
+  }
 }

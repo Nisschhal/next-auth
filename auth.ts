@@ -40,6 +40,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // if user somehow tries to login even though not verified return fasle
       const existingUser = await getUserByEmail(user.email!)
       if (!existingUser?.emailVerified) return false
+
+      // check for two factor confirmation
+      // TODO: if got confrimation delete it
+
       return true
     },
 

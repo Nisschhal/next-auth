@@ -31,6 +31,8 @@ export function LoginForm() {
 
   // to perform server actions
   const [isPending, startTransition] = useTransition()
+  // two factor state
+  const [showTwoFactor, setShowTwoFactor] = useState<boolean | undefined>(false)
   // error and success state
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
@@ -41,6 +43,7 @@ export function LoginForm() {
     defaultValues: {
       email: "",
       password: "",
+      code: "",
     },
   })
 
@@ -50,6 +53,7 @@ export function LoginForm() {
     // Reset the error and success state
     setError("")
     setSuccess("")
+    // setShowTwoFactor(false)
 
     startTransition(async () => {
       const result = await LoginAction(values)
@@ -60,14 +64,17 @@ export function LoginForm() {
         return
       }
 
-      const { error, success } = result // Safely destructure
-      console.log(error, success)
+      const { error, success, showTwoFactor } = result // Safely destructure
+      console.log(error, success, showTwoFactor)
 
       if (error) {
         setError(error)
       }
       if (success) {
         setSuccess(success)
+      }
+      if (showTwoFactor) {
+        setShowTwoFactor(showTwoFactor)
       }
       // console.error("Error while login form:", err)
       // setError("Something went wrong, please try again, or reload! 😉")
@@ -85,38 +92,18 @@ export function LoginForm() {
         {/* // create a html form */}
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="space-y-4">
-            {/* Email Input */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    {/* Spread ...field for controlled input */}
-                    <Input
-                      {...field}
-                      placeholder="nischal.dev@example.com"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Password Input */}
-            <div className="space-y-1">
+            {/* Two Factor  */}
+            {showTwoFactor && (
               <FormField
                 control={form.control}
-                name="password"
+                name="code"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Two Factor Code</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="********"
+                        placeholder="123456"
                         disabled={isPending}
                       />
                     </FormControl>
@@ -124,13 +111,58 @@ export function LoginForm() {
                   </FormItem>
                 )}
               />
-              <Link
-                href={"/auth/reset"}
-                className="text-xs hover:underline text-muted-foreground"
-              >
-                Forgot Password?
-              </Link>
-            </div>
+            )}
+
+            {!showTwoFactor && (
+              <>
+                {/* Email Input */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        {/* Spread ...field for controlled input */}
+                        <Input
+                          {...field}
+                          placeholder="nischal.dev@example.com"
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Password Input */}
+                <div className="space-y-1">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="********"
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Link
+                    href={"/auth/reset"}
+                    className="text-xs hover:underline text-muted-foreground"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
+              </>
+            )}
 
             {/* Form Error */}
 
@@ -138,7 +170,7 @@ export function LoginForm() {
             <FormError message={error || urlError} />
             {/* Submit Button */}
             <Button type="submit" className="w-full" disabled={isPending}>
-              Login
+              {showTwoFactor ? "Verify" : "Login"}
             </Button>
           </div>
         </form>

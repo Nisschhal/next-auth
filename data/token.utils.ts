@@ -30,7 +30,6 @@ export async function getVerificationTokenByToken(token: string) {
     const verificationToken = await db.verificationToken.findUnique({
       where: { token },
     })
-    console.log(verificationToken, "token")
     return verificationToken
   } catch (error) {
     console.log("Something went wrong while fetching tokenByToken", error)

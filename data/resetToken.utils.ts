@@ -30,7 +30,6 @@ export async function getResetTokenByToken(token: string) {
     const ResetToken = await db.restPasswordToken.findUnique({
       where: { token },
     })
-    console.log(ResetToken, "token")
     return ResetToken
   } catch (error) {
     console.log("Something went wrong while fetching reset tokenByToken", error)
