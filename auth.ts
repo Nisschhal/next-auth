@@ -3,6 +3,8 @@ import { db, db as prisma } from "@/lib/db"
 import authConfig from "./auth.config"
 import { getUserByEmail, getUserByIdWithoutPassword } from "./data/user.utils"
 import NextAuth from "next-auth"
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
+import { deleteTwoFactorConfirmation } from "./lib/twoFactorConfirmation"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
@@ -41,7 +43,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const existingUser = await getUserByEmail(user.email!)
       if (!existingUser?.emailVerified) return false
 
-      // check for two factor confirmation
+      // // check for two factor confirmation
+      // const twoTwoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+      //   existingUser.id
+      // )
+      // if (!twoTwoFactorConfirmation) return false
+
+      // await deleteTwoFactorConfirmation(existingUser.id)
+      // if no confrimation return false
       // TODO: if got confrimation delete it
 
       return true

@@ -8,12 +8,16 @@ import { getUserByEmail } from "@/data/user.utils"
 import { generateVerificationToken } from "@/lib/token"
 import { sendTwoFactorEmail, sendVerificationEmail } from "@/lib/mail"
 import { generateTwoFactorToken } from "@/lib/twoFactorToken"
-import { generateTwoFactorConfirmation } from "@/lib/twoFactorConfirmation"
+import {
+  deleteTwoFactorConfirmation,
+  generateTwoFactorConfirmation,
+} from "@/lib/twoFactorConfirmation"
 import {
   deleteTwoFactorTokenById,
   getTwoFactorTokenByEmail,
   getTwoFactorTokenByToken,
 } from "@/data/two-factor-token.utils"
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation"
 
 export const LoginAction = async (
   values: LoginSchemaType
@@ -36,15 +40,17 @@ export const LoginAction = async (
 
   // check for emailverified
   if (!existingUser.emailVerified) {
-    const generatedToken = await generateVerificationToken(email)
+    const generatedToken = await generateVerificationToken(existingUser.email)
     await sendVerificationEmail(generatedToken.email, generatedToken.token)
     return { success: "Confirmation Email sent, please verify!" }
   }
 
-  if (existingUser.isTwoFactorEnabled) {
+  if (existingUser.isTwoFactorEnabled && existingUser.email) {
     // if there is no Two factor Code
     if (code) {
-      const existingTwoFactorCode = await getTwoFactorTokenByEmail(email)
+      const existingTwoFactorCode = await getTwoFactorTokenByEmail(
+        existingUser.email
+      )
 
       if (!existingTwoFactorCode) {
         return { error: "Invalid Code" }
@@ -59,7 +65,13 @@ export const LoginAction = async (
 
       await deleteTwoFactorTokenById(existingTwoFactorCode.id)
 
-      await generateTwoFactorConfirmation(existingUser.id)
+      const confirmFactor = await getTwoFactorConfirmationByUserId(
+        existingUser.id
+      )
+      if (!confirmFactor) {
+        console.log({ confirmFactor })
+        await generateTwoFactorConfirmation(existingUser.id)
+      }
     } else {
       // check for the twofactor
       const generatedTwoFactorToken = await generateTwoFactorToken(email)

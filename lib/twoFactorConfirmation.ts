@@ -8,20 +8,20 @@ import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation
  * @returns - returns generate two factor Confirmation Object including: `userId`
  */
 export const generateTwoFactorConfirmation = async (userId: string) => {
+  console.log("touched confirmation")
   try {
-    await db.twoFactorConfirmation.delete({ where: { userId } })
-
     const twoFactorConfirmation = await db.twoFactorConfirmation.create({
       data: {
-        userId: userId,
+        userId,
       },
     })
-
+    console.log("Two factor confirmation genereted")
     return twoFactorConfirmation
   } catch (error) {
     console.log("Error while generating two factor confirmation", error)
   }
 }
+
 /**
  * Delete Two factor confrimation
  * @param userId - Email to verify confirmation

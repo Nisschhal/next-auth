@@ -1,4 +1,5 @@
 import { auth, signOut } from "@/auth"
+import { revalidatePath } from "next/cache"
 import React from "react"
 
 export default async function SettingRoute() {
@@ -10,6 +11,7 @@ export default async function SettingRoute() {
         action={async () => {
           "use server"
           await signOut()
+          revalidatePath("/")
         }}
       >
         <button type="submit">Signout</button>
