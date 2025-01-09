@@ -10,6 +10,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/erro",
   }, // events for linked accounts
   events: {
+    // async signIn({ user, account }) {
+    //   return true
+    // },
+
     // activate when google | google provider activates
     async linkAccount({ user }) {
       const existingUser = await db.user.findUnique({

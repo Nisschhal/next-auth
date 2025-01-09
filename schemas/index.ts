@@ -13,7 +13,7 @@ export type LoginSchemaType = z.infer<typeof LoginSchema>
 
 // SIGN UP
 export const SignupSchema = z.object({
-  email: z.string().email({ message: "Email is Required!" }),
+  email: z.string().email({ message: "Email is required!" }),
   password: z
     .string()
     .min(3, { message: "Password must be at least 3 characters long!" }),
@@ -22,3 +22,19 @@ export const SignupSchema = z.object({
 
 // Infer type for signup schema
 export type SignupSchemaType = z.infer<typeof SignupSchema>
+
+// RESET PASSWORD
+export const ResetSchema = z.object({
+  email: z.string().email({ message: "Email is required!" }),
+})
+
+export type ResetSchemaType = z.infer<typeof ResetSchema>
+
+// New PASSWORD
+export const NewPasswordSchema = z.object({
+  email: z.string().min(3, {
+    message: "Password must be at least 3 characters long!",
+  }),
+})
+
+export type NewPasswordSchemaType = z.infer<typeof NewPasswordSchema>

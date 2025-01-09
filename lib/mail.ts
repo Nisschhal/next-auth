@@ -21,7 +21,23 @@ const senderPassword = process.env.SENDER_PASSWORD // Replace with your Gmail Ap
 const receiverEmail = "recipient-email@example.com" // Replace with the recipient's email
 const token = "123456" // Replace with the token for verification
 
-export async function sendVerificationEmail(email: string, token: string) {
+enum EmailType {
+  Verification = "Verification",
+  Reset = "Reset",
+}
+
+/**
+ *Sends email, either confirm or reset
+ * @param email - Sends email to given address
+ * @param token - Token is used to create link
+ * @param type - Check either email is verify or reset
+ * @returns - returns info of email sent
+ */
+const sendEmail = async (
+  email: string,
+  token: string,
+  type: EmailType = EmailType.Verification
+) => {
   try {
     const confirmLink = `http://localhost:3000/auth/verify-email?token=${token}`
 
@@ -41,7 +57,7 @@ export async function sendVerificationEmail(email: string, token: string) {
       from: `"Next Auth" <${senderEmail}>`, // Sender address
       to: email, // Recipient address
       subject: "Verify Your Email", // Subject line
-      text: `Your verification token is: ${token}`, // Plain text
+      text: `Your ${type} token is: ${token}`, // Plain text
       html: `<p>Click <a href="${confirmLink}">here</a> to confirm your email</p>`, // HTML content
     }
 
@@ -49,10 +65,20 @@ export async function sendVerificationEmail(email: string, token: string) {
     const info = await transporter.sendMail(mailOptions)
 
     console.log("Email sent successfully!")
+    console.log(info)
     console.log("Message ID:", info.messageId)
+    return info
   } catch (error) {
     console.error("Error sending email:", error)
+    return
   }
+}
+
+export async function sendVerificationEmail(email: string, token: string) {
+  const info = await sendEmail(email, token)
+}
+export async function sendResetEmail(email: string, token: string) {
+  const info = await sendEmail(email, token, EmailType.Reset)
 }
 
 // Call the function
