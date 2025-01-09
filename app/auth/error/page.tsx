@@ -1,4 +1,4 @@
-import CardWrapper from "@/components/auth/card-wrapper"
+import CardWrapper from "@/components/auth/card-wrapper/card-wrapper"
 import React from "react"
 import { FaExclamation } from "react-icons/fa"
 import { HiOutlineExclamationTriangle } from "react-icons/hi2"

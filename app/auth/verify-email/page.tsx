@@ -1,7 +1,7 @@
 "use client"
 
 import VerifyEmailAction from "@/actions/verify-email"
-import CardWrapper from "@/components/auth/card-wrapper"
+import CardWrapper from "@/components/auth/card-wrapper/card-wrapper"
 import { FormError } from "@/components/auth/forms/form-error"
 import { FormSuccess } from "@/components/auth/forms/form-success"
 import { useSearchParams } from "next/navigation"
