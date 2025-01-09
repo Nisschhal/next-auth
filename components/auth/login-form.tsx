@@ -19,6 +19,7 @@ import { FormSuccess } from "../form-success"
 import { LoginAction } from "@/actions/login"
 import { useState, useTransition } from "react"
 import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 
 export function LoginForm() {
   // if error of linked account
@@ -104,24 +105,32 @@ export function LoginForm() {
               )}
             />
             {/* Password Input */}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="********"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-1">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="********"
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Link
+                href={"/auth/reset"}
+                className="text-xs hover:underline text-muted-foreground"
+              >
+                Forgot Password?
+              </Link>
+            </div>
 
             {/* Form Error */}
 

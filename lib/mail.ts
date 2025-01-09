@@ -39,7 +39,9 @@ const sendEmail = async (
   type: EmailType = EmailType.Verification
 ) => {
   try {
-    const confirmLink = `http://localhost:3000/auth/verify-email?token=${token}`
+    const confirmLink = `http://localhost:3000/auth/${
+      type === EmailType.Verification ? "verify-email" : "new-password"
+    }?token=${token}`
 
     // Step 1: Create the transporter
     const transporter = nodemailer.createTransport({
@@ -56,9 +58,17 @@ const sendEmail = async (
     const mailOptions = {
       from: `"Next Auth" <${senderEmail}>`, // Sender address
       to: email, // Recipient address
-      subject: "Verify Your Email", // Subject line
+      subject: `${
+        type === EmailType.Verification
+          ? "Verify Your Email"
+          : "Reset your password"
+      }`, // Subject line
       text: `Your ${type} token is: ${token}`, // Plain text
-      html: `<p>Click <a href="${confirmLink}">here</a> to confirm your email</p>`, // HTML content
+      html: `<p> Click <a href="${confirmLink}">here</a> to ${
+        type === EmailType.Verification
+          ? "verify your email"
+          : "change your password"
+      }</p>`, // HTML content
     }
 
     // Step 3: Send the email
@@ -80,6 +90,3 @@ export async function sendVerificationEmail(email: string, token: string) {
 export async function sendResetEmail(email: string, token: string) {
   const info = await sendEmail(email, token, EmailType.Reset)
 }
-
-// Call the function
-// sendVerificationEmail()

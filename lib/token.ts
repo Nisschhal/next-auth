@@ -32,14 +32,3 @@ export const generateVerificationToken = async (email: string) => {
 
   return verificationToken
 }
-
-// verify token
-
-// const verfyToken = async (token: string) => {
-//   // check for token
-//   const existingToken = await getVerificationTokenByToken(token)
-//   if (existingToken) {
-//     if (existingToken.expires < new Date()
-//   }
-//   // check of date
-// }

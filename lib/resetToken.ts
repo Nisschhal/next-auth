@@ -31,3 +31,22 @@ export const generateResetToken = async (email: string) => {
 
   return ResetToken
 }
+
+/**
+ * Delete Reset Token based on the given token
+ * @param token - to identify the token
+ * @returns - boolean
+ */
+export const deleteResetToken = async (token: string) => {
+  try {
+    const existingToken = await getResetTokenByToken(token)
+
+    if (existingToken) {
+      await db.restPasswordToken.delete({ where: { id: existingToken.id } })
+    }
+    return true
+  } catch (error) {
+    console.log("Error while deleting reset token", error)
+    return false
+  }
+}

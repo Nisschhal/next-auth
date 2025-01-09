@@ -30,11 +30,24 @@ export const ResetSchema = z.object({
 
 export type ResetSchemaType = z.infer<typeof ResetSchema>
 
-// New PASSWORD
-export const NewPasswordSchema = z.object({
-  email: z.string().min(3, {
-    message: "Password must be at least 3 characters long!",
-  }),
-})
+// New PASSWORD Schema
+export const NewPasswordSchema = z
+  .object({
+    password: z.string().min(3, {
+      message: "Password must be at least 3 characters long!",
+    }),
+    password1: z.string().min(3, {
+      message: "Password must be at least 3 characters long!",
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.password1) {
+      ctx.addIssue({
+        path: ["password1"], // Points to the `password1` field
+        message: "Passwords must match!",
+        code: "custom",
+      })
+    }
+  })
 
 export type NewPasswordSchemaType = z.infer<typeof NewPasswordSchema>
