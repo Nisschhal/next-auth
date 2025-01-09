@@ -4,6 +4,7 @@ import { SignupSchema, SignupSchemaType } from "@/schemas"
 import { db } from "@/lib/db"
 import { getUserByEmail } from "@/data/user.utils"
 import { generateVerificationToken } from "@/lib/token"
+import { sendVerificationEmail } from "@/lib/mail"
 
 /**
  * Handles the signup action for a new user.
@@ -46,6 +47,8 @@ export const SignupAction = async (
   const generatedToken = await generateVerificationToken(email)
 
   // TODO: Send verification token to email
+
+  await sendVerificationEmail(generatedToken.email, generatedToken.token)
 
   return { success: "Verification Link Sent to Email!" }
 }

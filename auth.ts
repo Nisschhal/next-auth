@@ -34,10 +34,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   // for jwt and session
   callbacks: {
-    // use if you need to handle sign in false if user is not verfied and so on.
-    async signIn({ user, profile, account }) {
-      return true
-    },
+    // // use if you need to handle sign in false if user is not verfied and so on.
+    // async signIn({ user, profile, account }) {
+    //   return true
+    // },
 
     // attach the role to token from user
     async jwt({ token, session }) {

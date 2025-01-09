@@ -31,8 +31,8 @@ export function LoginForm() {
   // to perform server actions
   const [isPending, startTransition] = useTransition()
   // error and success state
-  const [error, setError] = useState<string | undefined>()
-  const [success, setSuccess] = useState<string | undefined>()
+  const [error, setError] = useState<string | undefined>("")
+  const [success, setSuccess] = useState<string | undefined>("")
   // infer form type using loginSchema and automatically check default value props
   // resolver validates form fields using given schema
   const form = useForm<LoginSchemaType>({
@@ -46,15 +46,30 @@ export function LoginForm() {
   // form submit handler
   // gets the validated values form the form
   const onSubmit = (values: LoginSchemaType) => {
-    // reset the error || success state
+    // Reset the error and success state
     setError("")
     setSuccess("")
 
-    // perform server action and reflect of isPending
     startTransition(async () => {
-      const { success, error } = await LoginAction(values)
-      if (error) setError(error || "")
-      if (success) setSuccess(success || "")
+      const result = await LoginAction(values)
+
+      // Fallback in case `result` is undefined or invalid
+      if (!result) {
+        setError("Unexpected error, please try again!")
+        return
+      }
+
+      const { error, success } = result // Safely destructure
+      console.log(error, success)
+
+      if (error) {
+        setError(error)
+      }
+      if (success) {
+        setSuccess(success)
+      }
+      // console.error("Error while login form:", err)
+      // setError("Something went wrong, please try again, or reload! 😉")
     })
   }
 

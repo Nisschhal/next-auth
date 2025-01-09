@@ -14,7 +14,7 @@ export default function VerifyEmail() {
   const [isLoading, setLoading] = useState(false)
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
-  console.log(token, "got token here clidn ")
+  console.log(token, "got token here")
 
   const verify = async () => {
     setError("")

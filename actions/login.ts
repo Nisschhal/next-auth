@@ -6,6 +6,7 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
 import { AuthError } from "next-auth"
 import { getUserByEmail } from "@/data/user.utils"
 import { generateVerificationToken } from "@/lib/token"
+import { sendVerificationEmail } from "@/lib/mail"
 
 export const LoginAction = async (
   values: LoginSchemaType
@@ -24,11 +25,10 @@ export const LoginAction = async (
   if (!existingUser || !existingUser.email || !existingUser.password) {
     return { error: "Invalid Email or Credentials!" }
   }
-  console.log(existingUser, "user-----")
   // check for emailverified
   if (!existingUser.emailVerified) {
     const generatedToken = await generateVerificationToken(email)
-
+    await sendVerificationEmail(generatedToken.email, generatedToken.token)
     return { success: "Confirmation Email sent, please verify!" }
   }
 

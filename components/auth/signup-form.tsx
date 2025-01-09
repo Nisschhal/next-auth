@@ -50,9 +50,14 @@ export function SignupForm() {
 
     // perform server action and reflect of isPending
     startTransition(async () => {
-      const { success, error } = await SignupAction(values)
-      if (error) setError(error)
-      if (success) setSuccess(success)
+      try {
+        const { success, error } = await SignupAction(values)
+        if (error) setError(error)
+        if (success) setSuccess(success)
+      } catch (error) {
+        console.log("Error while signup form", error)
+        setError("Something went wrong, please try again! 😉")
+      }
     })
   }
 

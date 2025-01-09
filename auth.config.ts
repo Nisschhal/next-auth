@@ -16,7 +16,7 @@ export default {
     // IF somehow user | hacker made it there without proper login form validation then validate once again
     Credentials({
       async authorize(credentials) {
-        const validateFields = await LoginSchema.safeParse(credentials)
+        const validateFields = LoginSchema.safeParse(credentials)
 
         if (validateFields.success) {
           const { email, password } = validateFields.data
