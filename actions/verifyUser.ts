@@ -1,9 +1,12 @@
 "use server"
-import { getVerificationTokenByToken } from "@/data/token.utils"
-import { getUserByEmail } from "@/data/user.utils"
+import { getUserByEmail } from "@/data/user"
+import {
+  getVerificationTokenByEmail,
+  getVerificationTokenByToken,
+} from "@/data/verificationToken"
 import { db } from "@/lib/db"
 
-export default async function VerifyEmailAction(
+export default async function verifyUser(
   token: string
 ): Promise<{ error?: string; success?: string }> {
   console.log(token, "got token here server")
@@ -22,6 +25,7 @@ export default async function VerifyEmailAction(
     // Verify token and set emailVerified
     const existingUser = await getUserByEmail(existinToken.email)
 
+    // if user has already verfied?
     if (!existingUser || existingUser.emailVerified) {
       return { error: "Invalid Token!" }
     }

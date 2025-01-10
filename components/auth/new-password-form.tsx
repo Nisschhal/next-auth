@@ -1,5 +1,4 @@
 "use client"
-import { ResetAction } from "@/actions/reset"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -10,31 +9,45 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { ResetSchema, ResetSchemaType } from "@/schemas"
+import {
+  NewPasswordSchema,
+  NewPasswordSchemaType,
+  ResetSchema,
+  ResetSchemaType,
+} from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useState, useTransition } from "react"
+import React, { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { FormError } from "../form-error"
-import { FormSuccess } from "../form-success"
-import CardWrapper from "../../card-wrapper/card-wrapper"
+import { useSearchParams } from "next/navigation"
+import CardWrapper from "./card-wrapper"
+import { FormError } from "./form-error"
+import { FormSuccess } from "./form-success"
+import { changePassword } from "@/actions/new-password"
 
-export default function ResetForm() {
+export default function NewPasswordForm() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | undefined>()
   const [success, setSuccess] = useState<string | undefined>()
 
-  const form = useForm<ResetSchemaType>({
-    resolver: zodResolver(ResetSchema),
+  const searchParams = useSearchParams()
+
+  const token = searchParams.get("token")
+
+  // Create form
+  const form = useForm<NewPasswordSchemaType>({
+    resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      email: "",
+      password: "",
+      password1: "",
     },
   })
 
-  const onSubmit = (values: ResetSchemaType) => {
+  // handle submit
+  const onSubmit = (values: NewPasswordSchemaType) => {
     setError("")
     setSuccess("")
     startTransition(async () => {
-      const result = await ResetAction(values)
+      const result = await changePassword(values, token!)
 
       // Fallback in case `result` is undefined or invalid
       if (!result) {
@@ -69,16 +82,37 @@ export default function ResetForm() {
         >
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   {/* Spread ...field for controlled input */}
                   <Input
+                    type="password"
                     disabled={isPending}
                     {...field}
-                    placeholder="nischal.dev@example.com"
+                    placeholder="*******"
+                    //   disabled={isPending}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  {/* Spread ...field for controlled input */}
+                  <Input
+                    type="password1"
+                    disabled={isPending}
+                    {...field}
+                    placeholder="*******"
                     //   disabled={isPending}
                   />
                 </FormControl>

@@ -1,84 +1,69 @@
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { db, db as prisma } from "@/lib/db"
-import authConfig from "./auth.config"
-import { getUserByEmail, getUserByIdWithoutPassword } from "./data/user.utils"
 import NextAuth from "next-auth"
-import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
-import { deleteTwoFactorConfirmation } from "./lib/twoFactorConfirmation"
+import GitHub from "next-auth/providers/github"
+import Google from "next-auth/providers/google"
+import authConfig from "./auth.config"
+import { db } from "./lib/db"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { getUserById } from "./data/user"
+import {
+  deleteTwoFactorConfirmation,
+  getTwoFactorConfirmationByUserId,
+} from "./data/twoFactorConfirmation"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/auth/login",
-    error: "/auth/erro",
-  }, // events for linked accounts
+    error: "/auth/error",
+  },
   events: {
-    // activate when google | google provider activates
+    // only activate once per new account link so make sure emailVerfied is updated
     async linkAccount({ user }) {
-      const existingUser = await db.user.findUnique({
+      await db.user.update({
         where: {
           id: user.id,
         },
+        data: {
+          emailVerified: new Date(),
+        },
       })
-
-      // if such user exist
-      if (existingUser) {
-        await db.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            emailVerified: new Date(),
-          },
-        })
-      }
     },
   },
-
-  // for jwt and session
   callbacks: {
-    // use if you need to handle sign in false if user is not verfied and so on.
-    async signIn({ user, profile, account }) {
+    // extra check befor signing
+    async signIn({ user, account }) {
+      // if user somehow login via provider other than credential: googel or github then retun immediately
       if (account?.type !== "credentials") return true
-      // if user somehow tries to login even though not verified return fasle
-      const existingUser = await getUserByEmail(user.email!)
-      if (!existingUser?.emailVerified) return false
 
-      // // check for two factor confirmation
-      // const twoTwoFactorConfirmation = await getTwoFactorConfirmationByUserId(
-      //   existingUser.id
-      // )
-      // if (!twoTwoFactorConfirmation) return false
+      // if user is not verfied as well then bloc k
+      const exisingUser = await getUserById(user.id!)
+      if (!exisingUser?.emailVerified) return false
 
-      // await deleteTwoFactorConfirmation(existingUser.id)
-      // if no confrimation return false
-      // TODO: if got confrimation delete it
+      // check for twofactor confirmation
+      const confirmation = await getTwoFactorConfirmationByUserId(
+        exisingUser.id
+      )
+      console.log({ confirmation })
+      if (confirmation) {
+        deleteTwoFactorConfirmation(exisingUser.id)
+      }
 
       return true
     },
 
-    // attach the role to token from user
-    async jwt({ token, session }) {
+    // set the user role to token
+    async jwt({ token }) {
       if (!token.sub) return token
 
-      const exitingUser = await getUserByIdWithoutPassword(token.sub)
+      const existingUser = await getUserById(token.sub)
+      if (!existingUser) return token
 
-      if (!exitingUser) return token
-
-      // add role to toke to pass to session
-      token.role = exitingUser.role
-
+      token.role = existingUser.role
       return token
     },
-
-    // attach the role to user session
-    session({ token, session }) {
-      // add id to session
+    async session({ token, session }) {
+      // add the userId to session.user object as it only contains: name, email,
       if (token.sub && session.user) {
         session.user.id = token.sub
-      }
-
-      // add role to session
-      if (token.role && session.user) {
         session.user.role = token.role
       }
 
@@ -86,7 +71,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
+  // callbacks: {},
   session: { strategy: "jwt" },
   ...authConfig,
 })
+
+// Auth config is used because edge doesn't support prisma so to use callbacks with prisma we need to wrap auth.config.ts with auth.ts
+// and then we can safely use callbacks with prisma in auth.ts since this is only exposed to middleware where edges checks for its compactibitliy
+// middlware uses auth.config.ts for next-auth

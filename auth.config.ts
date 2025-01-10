@@ -1,37 +1,31 @@
-import Credentials from "next-auth/providers/credentials"
 import GitHub from "next-auth/providers/github"
-import bcrypt from "bcryptjs"
 import type { NextAuthConfig } from "next-auth"
+import Credentails from "next-auth/providers/credentials"
 import { LoginSchema } from "./schemas"
-import { db } from "./lib/db"
-import { getUserByEmail } from "./data/user.utils"
+import { getUserByEmail } from "./data/user"
+import bcryptjs from "bcryptjs"
 import Google from "next-auth/providers/google"
 import Github from "next-auth/providers/github"
+
 export default {
   providers: [
-    // google
-    Google,
-    GitHub,
-
-    // IF somehow user | hacker made it there without proper login form validation then validate once again
-    Credentials({
+    Credentails({
       async authorize(credentials) {
-        const validateFields = LoginSchema.safeParse(credentials)
-
-        if (validateFields.success) {
-          const { email, password } = validateFields.data
-
+        const validatedFields = await LoginSchema.safeParse(credentials)
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data
           const user = await getUserByEmail(email)
-
-          // user with oauth link, not a traditional user of username/password
+          // if logged in with google | github using credential () signin
           if (!user || !user.password) return null
 
-          const passwordMatch = await bcrypt.compare(password, user.password)
-
+          const passwordMatch = await bcryptjs.compare(password, user.password)
+          // if password matched send the user to signIn() callback
           if (passwordMatch) return user
         }
         return null
       },
     }),
+    Google,
+    Github,
   ],
 } satisfies NextAuthConfig

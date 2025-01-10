@@ -1,97 +1,76 @@
 "use client"
+
+import React, { useState, useTransition } from "react"
+import CardWrapper from "./card-wrapper"
 import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { LoginSchema, LoginSchemaType } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Form,
-  FormControl,
-  FormItem,
   FormField,
+  FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form"
-
-import { LoginSchema, LoginSchemaType } from "@/schemas"
-import { LoginAction } from "@/actions/login"
-import { useState, useTransition } from "react"
+import { Input } from "../ui/input"
+import { Button } from "../ui/button"
+import { FormError } from "./form-error"
+import { FormSuccess } from "./form-success"
+import { login } from "@/actions/login"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import CardWrapper from "../../card-wrapper/card-wrapper"
-import { Input } from "@/components/ui/input"
-import { FormSuccess } from "../form-success"
-import { FormError } from "../form-error"
-import { Button } from "@/components/ui/button"
 
-export function LoginForm() {
-  // if error of linked account
+export default function LoginForm() {
   const searchParams = useSearchParams()
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Email already in use with different provider!"
       : ""
 
-  // to perform server actions
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+
   const [isPending, startTransition] = useTransition()
-  // two factor state
-  const [showTwoFactor, setShowTwoFactor] = useState<boolean | undefined>(false)
-  // error and success state
-  const [error, setError] = useState<string | undefined>("")
-  const [success, setSuccess] = useState<string | undefined>("")
-  // infer form type using loginSchema and automatically check default value props
-  // resolver validates form fields using given schema
-  const form = useForm<LoginSchemaType>({
+  const [showTwoFactor, setShowTwoFactor] = useState(false)
+
+  const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
-      code: "",
     },
   })
 
-  // form submit handler
-  // gets the validated values form the form
-  const onSubmit = (values: LoginSchemaType) => {
-    // Reset the error and success state
-    setError("")
+  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setSuccess("")
-    // setShowTwoFactor(false)
-
+    setError("")
     startTransition(async () => {
-      const result = await LoginAction(values)
-
-      // Fallback in case `result` is undefined or invalid
-      if (!result) {
-        setError("Unexpected error, please try again!")
-        return
-      }
-
-      const { error, success, showTwoFactor } = result // Safely destructure
-      console.log(error, success, showTwoFactor)
-
-      if (error) {
-        setError(error)
-      }
-      if (success) {
-        setSuccess(success)
-      }
-      if (showTwoFactor) {
-        setShowTwoFactor(showTwoFactor)
-      }
-      // console.error("Error while login form:", err)
-      // setError("Something went wrong, please try again, or reload! 😉")
+      const { success, error, twoFactor } = await login(values)
+      if (success) setSuccess(success)
+      if (error) setError(error)
+      if (twoFactor) setShowTwoFactor(true)
+      //   login(values)
+      //     .then(({ success, error }) => {
+      //       if (success) setSuccess(success)
+      //       if (error) setError(error)
+      //     })
+      //     .catch((error) => setError("Couldn't get action!"))
     })
   }
 
   return (
     <CardWrapper
-      headerLabel="Welcome back"
-      backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/signup"
-      showSocial
+      headerLabel={"Welcome back!"}
+      backButtonLabel={"Don't have an account?"}
+      backButtonHref={"/auth/register"}
+      showSocials
     >
       <Form {...form}>
-        {/* // create a html form */}
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className=" space-y-6">
           <div className="space-y-4">
+            {/* Two Factor Code */}
             {/* Two Factor  */}
             {showTwoFactor && (
               <FormField
@@ -115,7 +94,7 @@ export function LoginForm() {
 
             {!showTwoFactor && (
               <>
-                {/* Email Input */}
+                {/* Email */}
                 <FormField
                   control={form.control}
                   name="email"
@@ -123,18 +102,18 @@ export function LoginForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        {/* Spread ...field for controlled input */}
                         <Input
                           {...field}
-                          placeholder="nischal.dev@example.com"
                           disabled={isPending}
+                          type="email"
+                          placeholder="nisal.dev@example.com"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* Password Input */}
+                {/* Password */}
                 <div className="space-y-1">
                   <FormField
                     control={form.control}
@@ -155,24 +134,21 @@ export function LoginForm() {
                     )}
                   />
                   <Link
+                    className="text-xs mt-1 hover:underline text-muted-foreground hover:text-foreground"
                     href={"/auth/reset"}
-                    className="text-xs hover:underline text-muted-foreground"
                   >
-                    Forgot Password?
+                    Forgot password?
                   </Link>
                 </div>
               </>
             )}
-
-            {/* Form Error */}
-
-            <FormSuccess message={success} />
-            <FormError message={error || urlError} />
-            {/* Submit Button */}
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {showTwoFactor ? "Verify" : "Login"}
-            </Button>
           </div>
+
+          <FormError message={error || urlError} />
+          <FormSuccess message={success} />
+          <Button type="submit" className="w-full" disabled={isPending}>
+            Login
+          </Button>
         </form>
       </Form>
     </CardWrapper>

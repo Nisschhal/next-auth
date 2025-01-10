@@ -1,4 +1,3 @@
-import {} from "react-icons"
 import { HiOutlineCheckCircle } from "react-icons/hi2"
 
 interface FormSuccessProps {

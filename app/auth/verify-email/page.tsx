@@ -1,9 +1,9 @@
 "use client"
 
-import VerifyEmailAction from "@/actions/verify-email"
-import CardWrapper from "@/components/auth/card-wrapper/card-wrapper"
-import { FormError } from "@/components/auth/forms/form-error"
-import { FormSuccess } from "@/components/auth/forms/form-success"
+import verifyUser from "@/actions/verifyUser"
+import CardWrapper from "@/components/auth/card-wrapper"
+import { FormError } from "@/components/auth/form-error"
+import { FormSuccess } from "@/components/auth/form-success"
 import { useSearchParams } from "next/navigation"
 import React, { useEffect, useState } from "react"
 
@@ -21,7 +21,7 @@ export default function VerifyEmail() {
     setSuccess("")
     setLoading(true)
     if (token) {
-      const { success, error } = await VerifyEmailAction(token)
+      const { success, error } = await verifyUser(token)
       if (success) setSuccess(success)
       if (error) setError(error)
     } else {

@@ -1,10 +1,10 @@
 import { db } from "@/lib/db"
 
 /**
- * Fetches a Reset token based on the provided email.
+ * Fetches a two factor token based on the provided email.
  *
- * @param email - The email to find the associated Reset token for.
- * @returns - Returns the Reset token if found, otherwise null.
+ * @param email - The email to find the associated two factor token for.
+ * @returns - Returns the two factor token if found, otherwise null.
  */
 export async function getTwoFactorTokenByEmail(email: string) {
   try {

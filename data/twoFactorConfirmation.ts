@@ -21,3 +21,16 @@ export async function getTwoFactorConfirmationByUserId(userId: string) {
     return null
   }
 }
+
+/**
+ * Delete Two factor confrimation
+ * @param userId - Email to verify confirmation
+ * @returns - returns generate two factor Confirmation Object including: `userId`
+ */
+export const deleteTwoFactorConfirmation = async (userId: string) => {
+  try {
+    await db.twoFactorConfirmation.delete({ where: { userId } })
+  } catch (error) {
+    console.log("Error while deleting two factor confirmation", error)
+  }
+}

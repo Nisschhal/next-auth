@@ -1,96 +1,73 @@
 "use server"
 
-import { LoginSchema, LoginSchemaType } from "@/schemas"
 import { signIn } from "@/auth"
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
-import { AuthError } from "next-auth"
-import { getUserByEmail } from "@/data/user.utils"
-import { generateVerificationToken } from "@/lib/token"
-import { sendTwoFactorEmail, sendVerificationEmail } from "@/lib/mail"
-import { generateTwoFactorToken } from "@/lib/twoFactorToken"
-import {
-  deleteTwoFactorConfirmation,
-  generateTwoFactorConfirmation,
-} from "@/lib/twoFactorConfirmation"
 import {
   deleteTwoFactorTokenById,
   getTwoFactorTokenByEmail,
-  getTwoFactorTokenByToken,
-} from "@/data/two-factor-token.utils"
-import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation"
+} from "@/data/twoFactorToken"
+import { getUserByEmail } from "@/data/user"
+import { sendTwoFactorEmail, sendVerificationEmail } from "@/lib/mail"
+import {
+  generateTwoFactorConfirmation,
+  generateTwoFactorToken,
+  generateVerificationToken,
+} from "@/lib/tokens"
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes"
+import { LoginSchema } from "@/schemas"
+import { AuthError } from "next-auth"
+import * as z from "zod"
+export const login = async (values: z.infer<typeof LoginSchema>) => {
+  const validatedFields = LoginSchema.safeParse(values)
 
-export const LoginAction = async (
-  values: LoginSchemaType
-): Promise<{ error?: string; success?: string; showTwoFactor?: boolean }> => {
-  console.log("clicked")
-  const validationResults = LoginSchema.safeParse(values)
-  console.log({ values })
-  if (!validationResults.success) {
-    return { error: "Invalid inputs!" }
+  if (!validatedFields.success) {
+    return { error: "Invalide fields!" }
   }
 
-  const { email, password, code } = validationResults.data
+  const { email, password, code } = validatedFields.data
 
-  // check for user  and email verfied
+  // check for correct user
   const existingUser = await getUserByEmail(email)
-
   if (!existingUser || !existingUser.email || !existingUser.password) {
-    return { error: "Invalid Email or Credentials!" }
+    return { error: "Email doesn't exist" }
   }
 
-  // check for emailverified
+  // check for user verfied
   if (!existingUser.emailVerified) {
-    const generatedToken = await generateVerificationToken(existingUser.email)
-    await sendVerificationEmail(generatedToken.email, generatedToken.token)
-    return { success: "Confirmation Email sent, please verify!" }
+    const verficationToken = await generateVerificationToken(email)
+    await sendVerificationEmail(verficationToken.email, verficationToken.token)
+    // TODO: send email with verification link
+
+    return { success: "Confirmation sent to email!" }
   }
 
-  if (existingUser.isTwoFactorEnabled && existingUser.email) {
-    // if there is no Two factor Code
+  // check if twofactor enabled and sent code
+  if (existingUser.isTwoFactorEnabled) {
+    // check if code exist & correct & not expired
     if (code) {
-      const existingTwoFactorCode = await getTwoFactorTokenByEmail(
-        existingUser.email
-      )
+      const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email)
 
-      if (!existingTwoFactorCode) {
-        return { error: "Invalid Code" }
+      if (!twoFactorToken) {
+        return { error: "Invalid Code!" }
       }
-      if (existingTwoFactorCode.token !== code) {
-        console.log("toknes", existingTwoFactorCode.token, code)
+      if (twoFactorToken.token !== code) {
         return { error: "Wrong Code!" }
       }
-      if (existingTwoFactorCode.expires < new Date()) {
+
+      if (twoFactorToken.expires < new Date()) {
         return { error: "Code has expired!" }
       }
 
-      await deleteTwoFactorTokenById(existingTwoFactorCode.id)
+      await deleteTwoFactorTokenById(twoFactorToken.id)
 
-      const confirmFactor = await getTwoFactorConfirmationByUserId(
-        existingUser.id
-      )
-      if (!confirmFactor) {
-        console.log({ confirmFactor })
-        await generateTwoFactorConfirmation(existingUser.id)
-      }
+      // create confirmation
+      await generateTwoFactorConfirmation(existingUser.id)
     } else {
-      // check for the twofactor
-      const generatedTwoFactorToken = await generateTwoFactorToken(email)
-      await sendTwoFactorEmail(
-        generatedTwoFactorToken.email,
-        generatedTwoFactorToken.token
-      )
-      return { showTwoFactor: true, success: "Two Factor code sent to email!" }
+      // if no code send new one
+      const twoFactorToken = await generateTwoFactorToken(existingUser.email)
+      await sendTwoFactorEmail(twoFactorToken.email, twoFactorToken.token)
+      return { twoFactor: true, success: "Two Factor Code sent to email!" }
     }
   }
-
-  // if (existingUser.isTwoFactorEnabled) {
-  //   const generatedTwoFactorToken = await generateTwoFactorToken(email)
-  //   await sendTwoFactorEmail(
-  //     generatedTwoFactorToken.email,
-  //     generatedTwoFactorToken.token
-  //   )
-  //   return { showTwoFactor: true, success: "Two Factor code sent to email!" }
-  // }
 
   try {
     await signIn("credentials", {
@@ -98,28 +75,19 @@ export const LoginAction = async (
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     })
-    return { success: "Login successful!" } // Explicit success response
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
+        // error coming from Credential() provider: authorize() function
         case "CredentialsSignin":
-          return { error: "Invalid Credentials!" }
+          return { error: "Invalid Credentails" }
         default:
-          return { error: "Something went wrong!" }
+          return { error: "Something went wrong in signIn!" }
       }
     }
-    // Rethrow non-AuthError exceptions
+    // if not thrown it will not redirect
     throw error
+    console.log("Error while login using credentails", error)
   }
-}
-
-export async function handleGoogleLogin() {
-  await signIn("google", {
-    callbackUrl: "/settings",
-  })
-}
-export async function handleGithubLogin() {
-  await signIn("gihub", {
-    callbackUrl: "/settings",
-  })
+  return { success: "Login Success!" }
 }

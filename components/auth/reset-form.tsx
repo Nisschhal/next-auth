@@ -1,6 +1,4 @@
 "use client"
-import { ResetAction } from "@/actions/reset"
-import CardWrapper from "@/components/auth/card-wrapper/card-wrapper"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -11,44 +9,32 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import {
-  NewPasswordSchema,
-  NewPasswordSchemaType,
-  ResetSchema,
-  ResetSchemaType,
-} from "@/schemas"
+import { ResetSchema, ResetSchemaType } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useEffect, useState, useTransition } from "react"
+import React, { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
-import { FormSuccess } from "../form-success"
-import { FormError } from "../form-error"
-import { useSearchParams } from "next/navigation"
-import { NewPasswordAction } from "@/actions/new-password"
+import CardWrapper from "./card-wrapper"
+import { FormError } from "./form-error"
+import { FormSuccess } from "./form-success"
+import { resetPassword } from "@/actions/reset"
 
-export default function NewPasswordForm() {
+export default function ResetForm() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | undefined>()
   const [success, setSuccess] = useState<string | undefined>()
 
-  const searchParams = useSearchParams()
-
-  const token = searchParams.get("token")
-
-  // Create form
-  const form = useForm<NewPasswordSchemaType>({
-    resolver: zodResolver(NewPasswordSchema),
+  const form = useForm<ResetSchemaType>({
+    resolver: zodResolver(ResetSchema),
     defaultValues: {
-      password: "",
-      password1: "",
+      email: "",
     },
   })
 
-  // handle submit
-  const onSubmit = (values: NewPasswordSchemaType) => {
+  const onSubmit = (values: ResetSchemaType) => {
     setError("")
     setSuccess("")
     startTransition(async () => {
-      const result = await NewPasswordAction(values, token!)
+      const result = await resetPassword(values)
 
       // Fallback in case `result` is undefined or invalid
       if (!result) {
@@ -83,37 +69,16 @@ export default function NewPasswordForm() {
         >
           <FormField
             control={form.control}
-            name="password"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
                   {/* Spread ...field for controlled input */}
                   <Input
-                    type="password"
                     disabled={isPending}
                     {...field}
-                    placeholder="*******"
-                    //   disabled={isPending}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password1"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  {/* Spread ...field for controlled input */}
-                  <Input
-                    type="password1"
-                    disabled={isPending}
-                    {...field}
-                    placeholder="*******"
+                    placeholder="nischal.dev@example.com"
                     //   disabled={isPending}
                   />
                 </FormControl>

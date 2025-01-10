@@ -17,8 +17,8 @@ export const SignupSchema = z.object({
   email: z.string().email({ message: "Email is required!" }),
   password: z
     .string()
-    .min(3, { message: "Password must be at least 3 characters long!" }),
-  name: z.string().min(6, { message: "Minimum 5 characters required!" }),
+    .min(5, { message: "Password must be at least 5 characters long!" }),
+  name: z.string().min(3, { message: "Minimum 3 characters required!" }),
 })
 
 // Infer type for signup schema

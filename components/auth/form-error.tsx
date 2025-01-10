@@ -1,11 +1,10 @@
-import {} from "react-icons"
+import React from "react"
 import { HiOutlineExclamationTriangle } from "react-icons/hi2"
 
 interface FormErrorProps {
   message?: string
 }
-
-export const FormError = ({ message }: FormErrorProps) => {
+export function FormError({ message }: FormErrorProps) {
   if (!message) return null
 
   return (

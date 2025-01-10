@@ -1,10 +1,8 @@
 "use server"
 import { ResetSchema, ResetSchemaType } from "@/schemas"
-import { db } from "@/lib/db"
-import { getUserByEmail } from "@/data/user.utils"
-import { generateVerificationToken } from "@/lib/token"
-import { sendResetEmail, sendVerificationEmail } from "@/lib/mail"
-import { generateResetToken } from "@/lib/resetToken"
+import { sendResetEmail } from "@/lib/mail"
+import { getUserByEmail } from "@/data/user"
+import { generateResetToken } from "@/lib/tokens"
 
 /**
  * Handles the signup action for a new user.
@@ -12,7 +10,7 @@ import { generateResetToken } from "@/lib/resetToken"
  * @param {ResetSchemaType} values - The input values for reset, including `email`
  * @returns {Promise<{ error?: string; success?: string }>} - Returns a promise that resolves to an object containing either an `error` message or a `success` message.
  */
-export const ResetAction = async (
+export const resetPassword = async (
   values: ResetSchemaType
 ): Promise<{ error?: string; success?: string }> => {
   // Validate the input

@@ -6,17 +6,16 @@ import {
   ResetSchemaType,
 } from "@/schemas"
 import { db } from "@/lib/db"
-import { getUserByEmail } from "@/data/user.utils"
-import { deleteResetToken } from "@/lib/resetToken"
-import { getResetTokenByToken } from "@/data/resetToken.utils"
 import bcrypt from "bcryptjs"
+import { deleteResetTokenById, getResetTokenByToken } from "@/data/resetToken"
+import { getUserByEmail } from "@/data/user"
 /**
  * Handles the new password action
  *
  * @param {NewPasswordSchemaType} values - The input values for reset, including `password`
  * @returns {Promise<{ error?: string; success?: string }>} - Returns a promise that resolves to an object containing either an `error` message or a `success` message.
  */
-export const NewPasswordAction = async (
+export const changePassword = async (
   values: NewPasswordSchemaType,
   token: string
 ): Promise<{ error?: string; success?: string }> => {
@@ -51,7 +50,7 @@ export const NewPasswordAction = async (
   }
 
   // Delete reset token
-  const isTokenDeleted = await deleteResetToken(token)
+  const isTokenDeleted = await deleteResetTokenById(resetToken.id)
 
   if (!isTokenDeleted) return { error: "Couldn't reset password!" }
 
