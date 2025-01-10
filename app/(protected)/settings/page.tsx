@@ -24,7 +24,7 @@ import * as z from "zod"
 
 export default function Setting() {
   const user = useCurrentUser()
-
+  const { update } = useSession()
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
@@ -35,6 +35,7 @@ export default function Setting() {
     resolver: zodResolver(SettingSchema),
     defaultValues: {
       name: user?.name!,
+      email: user?.email,
     },
   })
 
@@ -43,7 +44,10 @@ export default function Setting() {
     setError("")
     startTransition(async () => {
       const { success, error } = await settings(values)
-      if (success) setSuccess(success)
+      if (success) {
+        update()
+        setSuccess(success)
+      }
       if (error) setError(error)
     })
   }

@@ -31,10 +31,14 @@ declare module "next-auth/jwt" {
     idToken?: string
     role: UserRoles
     isTwoFactorEnabled: boolean
+    name?: string
+    email: string
   }
 }
 
 export type ExtendedUser = DefaultSession["user"] & {
   role: UserRoles
   isTwoFactorEnabled: boolean
+  name?: string
+  email: string
 }
