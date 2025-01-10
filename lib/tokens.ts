@@ -72,7 +72,8 @@ export const generateResetToken = async (email: string) => {
  */
 export const generateTwoFactorToken = async (email: string) => {
   const token = crpyto.randomInt(100_000, 1_000_000).toString()
-  const expires = new Date(new Date().getTime() + 1800 * 1000) // 30 minutes age
+
+  const expires = new Date(new Date().getTime() + 5 * 60 * 1000) // 5 minutes time limit
 
   const existingToken = await getTwoFactorTokenByEmail(email)
 

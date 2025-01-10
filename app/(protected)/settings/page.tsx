@@ -1,20 +1,24 @@
-import { auth, signOut } from "@/auth"
+"use client"
+
+import { logout } from "@/actions/logout"
 import { Button } from "@/components/ui/button"
-import { revalidatePath } from "next/cache"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { useSession } from "next-auth/react"
 import React from "react"
 
-export default async function Setting() {
-  const session = await auth()
+export default function Setting() {
+  const user = useCurrentUser()
+
+  const onClick = async (e: React.MouseEvent) => {
+    e.preventDefault() // Prevent form submission
+    await logout() // Call the server-side logout logic
+  }
+
   return (
     <>
-      <p>{JSON.stringify(session)}</p>
-      <form
-        action={async () => {
-          "use server"
-          await signOut({ redirectTo: "/auth/login" })
-        }}
-      >
-        <Button> Hey</Button>
+      <p>{JSON.stringify(user)}</p>
+      <form>
+        <Button onClick={onClick}>Logout</Button>
       </form>
     </>
   )
