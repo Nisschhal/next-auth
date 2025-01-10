@@ -13,6 +13,7 @@ export default function Navbar() {
         <Button
           asChild
           variant={`${pathname === "/server" ? "default" : "outline"}`}
+          className="duration-300 transition-colors"
         >
           <Link href={"/server"}>Server</Link>
         </Button>
