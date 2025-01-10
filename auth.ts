@@ -58,6 +58,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!existingUser) return token
 
       token.role = existingUser.role
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled
+      console.log({ token })
       return token
     },
     async session({ token, session }) {
@@ -66,7 +68,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.id = token.sub
         session.user.role = token.role
       }
+      if (token.role && session.user) {
+        session.user.role = token.role
+      }
 
+      // add two factor props as well in session user but don't check as it returns "false" value
+      // so just add it in user
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled
+      }
+      console.log({ session, token })
       return session
     },
   },

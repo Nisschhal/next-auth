@@ -18,7 +18,7 @@ export default function Navbar() {
         </Button>
         <Button
           asChild
-          variant={`${pathname === "/server" ? "default" : "outline"}`}
+          variant={`${pathname === "/client" ? "default" : "outline"}`}
         >
           <Link href={"/client"}>Client</Link>
         </Button>
