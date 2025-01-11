@@ -19,7 +19,10 @@ import nodemailer from "nodemailer"
 const senderEmail = process.env.SENDER_EMAIL // Replace with your email
 const senderPassword = process.env.SENDER_PASSWORD // Replace with your Gmail App Password
 
-const DOMAIN = process.env.NEXT_PUBLIC_APP_URL
+const DOMAIN =
+  process.env.NODE_ENV !== "production"
+    ? process.env.NEXT_PUBLIC_APP_URL
+    : "https://next-auth-nisschal.vercel.app"
 
 enum EmailType {
   Verification = "Verification",
