@@ -35,12 +35,6 @@ import { UserRoles } from "@prisma/client"
 import { useRouter } from "next/router"
 
 export default function SettingForm() {
-  const router = useRouter()
-
-  useEffect(() => {
-    router.reload()
-  }, [])
-
   const user = useCurrentUser()
   const { update } = useSession()
   const [error, setError] = useState("")
@@ -102,7 +96,7 @@ export default function SettingForm() {
               />
 
               {/* hide for oAuth users as email and password is not required for them */}
-              {user?.isOAuth === false ? (
+              {!user?.isOAuth ? (
                 <>
                   {/* Email */}
                   <FormField
@@ -225,5 +219,3 @@ export default function SettingForm() {
     </Card>
   )
 }
-
-;<Switch />
