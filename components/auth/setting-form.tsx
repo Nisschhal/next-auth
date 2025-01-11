@@ -40,7 +40,6 @@ export default function SettingForm() {
   const [success, setSuccess] = useState("")
 
   const [isPending, startTransition] = useTransition()
-  const [showTwoFactor, setShowTwoFactor] = useState(false)
 
   const form = useForm<z.infer<typeof SettingSchema>>({
     resolver: zodResolver(SettingSchema),
@@ -96,7 +95,7 @@ export default function SettingForm() {
               />
 
               {/* hide for oAuth users as email and password is not required for them */}
-              {user?.isOAuth === false && (
+              {user?.isOAuth === false ? (
                 <>
                   {/* Email */}
                   <FormField
@@ -156,7 +155,7 @@ export default function SettingForm() {
                     )}
                   />
                 </>
-              )}
+              ) : null}
               {/* Role */}
               <FormField
                 control={form.control}
