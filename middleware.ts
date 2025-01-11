@@ -46,7 +46,17 @@ export default auth((req) => {
 
   // 4. is not logged In and is not on a public routes then redirect to '/auth/login'
   if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/auth/login", nextUrl))
+    // if there is any url that is not public
+    // make is callback url after login
+    let callbackUrl = nextUrl.pathname
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search
+    }
+
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl)
+    return Response.redirect(
+      new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, nextUrl)
+    )
   }
 
   // 4. for other routes that don't meet aboves requirement do nothing as well

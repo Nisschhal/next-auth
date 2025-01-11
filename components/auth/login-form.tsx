@@ -29,6 +29,7 @@ export default function LoginForm() {
       ? "Email already in use with different provider!"
       : ""
 
+  const callbackUrl = searchParams.get("callbackUrl")
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
@@ -47,7 +48,7 @@ export default function LoginForm() {
     setSuccess("")
     setError("")
     startTransition(async () => {
-      const { success, error, twoFactor } = await login(values)
+      const { success, error, twoFactor } = await login(values, callbackUrl)
       if (success) setSuccess(success)
       if (error) setError(error)
       if (twoFactor) setShowTwoFactor(true)

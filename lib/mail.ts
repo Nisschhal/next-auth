@@ -18,8 +18,8 @@ import nodemailer from "nodemailer"
 // Configuration
 const senderEmail = process.env.SENDER_EMAIL // Replace with your email
 const senderPassword = process.env.SENDER_PASSWORD // Replace with your Gmail App Password
-const receiverEmail = "recipient-email@example.com" // Replace with the recipient's email
-const token = "123456" // Replace with the token for verification
+
+const DOMAIN = process.env.NEXT_PUBLIC_APP_URL
 
 enum EmailType {
   Verification = "Verification",
@@ -40,7 +40,7 @@ const sendEmail = async (
   type: EmailType = EmailType.Verification
 ) => {
   try {
-    const confirmLink = `http://localhost:3000/auth/${
+    const confirmLink = `${DOMAIN}/auth/${
       type === EmailType.Verification ? "verify-email" : "new-password"
     }?token=${token}`
 
