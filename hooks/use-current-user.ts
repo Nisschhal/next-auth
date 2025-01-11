@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react"
 import { useEffect } from "react"
 
 export const useCurrentUser = () => {
-  const { data: session, status, update } = useSession()
+  const { data, status, update } = useSession()
 
   // Optionally refresh session data on component mount
   useEffect(() => {
@@ -12,5 +12,5 @@ export const useCurrentUser = () => {
     }
   }, [status, update])
 
-  return session?.user
+  return data?.user
 }
