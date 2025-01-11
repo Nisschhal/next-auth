@@ -4,7 +4,7 @@ import Google from "next-auth/providers/google"
 import authConfig from "./auth.config"
 import { db } from "./lib/db"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { getUserById } from "./data/user"
+import { getAccountByUserId, getUserById } from "./data/user"
 import {
   deleteTwoFactorConfirmation,
   getTwoFactorConfirmationByUserId,
@@ -58,6 +58,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       if (!existingUser) return token
 
+      const existingAccount = await getAccountByUserId(existingUser.id)
+
+      // convert exiting Account to boolean with double bang !!
+      token.isOAuth = !!existingAccount
       token.name = existingUser.name!
       token.email = existingUser.email
       token.role = existingUser.role
@@ -82,7 +86,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled
         session.user.name = token.name
         session.user.email = token.email
+        session.user.isOAuth = token.isOAuth
       }
+
       console.log({ session, token })
       return session
     },

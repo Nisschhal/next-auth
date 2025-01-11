@@ -18,3 +18,13 @@ export const getUserById = async (id: string) => {
     return null
   }
 }
+
+export const getAccountByUserId = async (userId: string) => {
+  try {
+    const accountUser = await db.account.findFirst({ where: { userId } })
+    return accountUser
+  } catch (error) {
+    console.log("Error while getting account by userId", error)
+    return null
+  }
+}
