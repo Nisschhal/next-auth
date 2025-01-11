@@ -42,7 +42,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const confirmation = await getTwoFactorConfirmationByUserId(
         exisingUser.id
       )
-      console.log({ confirmation })
       if (confirmation) {
         deleteTwoFactorConfirmation(exisingUser.id)
       }
@@ -67,7 +66,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       token.role = existingUser.role
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled
 
-      console.log({ token })
       return token
     },
     async session({ token, session }) {
@@ -89,7 +87,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.isOAuth = token.isOAuth
       }
 
-      console.log({ session, token })
       return session
     },
   },
