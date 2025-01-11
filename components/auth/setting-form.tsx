@@ -28,12 +28,19 @@ import { useCurrentUser } from "@/hooks/use-current-user"
 import { SettingSchema } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useSession } from "next-auth/react"
-import React, { useState, useTransition } from "react"
+import React, { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { UserRoles } from "@prisma/client"
+import { useRouter } from "next/router"
 
 export default function SettingForm() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.reload()
+  }, [])
+
   const user = useCurrentUser()
   const { update } = useSession()
   const [error, setError] = useState("")
